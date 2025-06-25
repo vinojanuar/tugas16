@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tugas16/view/home_screen.dart';
-import 'package:tugas16/view/login_screen.dart';
-import 'package:tugas16/view/register_screen.dart';
 
 void main() {
   runApp(const MyApp());
