@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tugas16/view/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,8 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  final bool _obscurePassword = true;
-  
+  bool _obscurePassword = true;
 
   void _login() async {
     if (!_formKey.currentState!.validate()) return;
@@ -23,12 +23,8 @@ class _LoginScreenState extends State<LoginScreen> {
       isLoading = true;
     });
 
-
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Berhasil Login"), 
-        backgroundColor: Colors.green
-        ),
+      SnackBar(content: Text("Berhasil Login"), backgroundColor: Colors.green),
     );
 
     // Navigator.pushAndRemoveUntil(
@@ -36,20 +32,21 @@ class _LoginScreenState extends State<LoginScreen> {
     //   ,MaterialPageRoute(builder: (context) => )
     //   (route) => false,
     // );
-  // } else {
-  //   ScaffoldMessenger.of(context).showSnackBar(
-  //     SnackBar(
-  //       content: Text(
-  //         "Gagal Login, ${res["message"] ?? "Terjadi Kesalahan"}"
-  //         )
-  //         ,backgroundColor: Colors.red,
-  //    ),
-  //  );
-  // }
- setState(() {
-   isLoading = false;
- });
+    // } else {
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text(
+    //         "Gagal Login, ${res["message"] ?? "Terjadi Kesalahan"}"
+    //         )
+    //         ,backgroundColor: Colors.red,
+    //    ),
+    //  );
+    // }
+    setState(() {
+      isLoading = false;
+    });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration:  _inputDecoration ("Masukan email anda"),
+                decoration: _inputDecoration("Masukan email anda"),
                 validator: (value) =>
                     value!.isEmpty ? 'Email tidak boleh kosong' : null,
               ),
@@ -104,20 +101,61 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                 ),
-                validator: 
-                (value) =>
+                validator: (value) =>
                     value!.isEmpty ? 'Password tidak boleh kosong' : null,
               ),
 
               SizedBox(height: 20),
 
               ElevatedButton(
-                onPressed: _login, 
+                onPressed: _login,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.amber,
-                  elevation: 0
-                  minimumSize: Size(double.infinity, 56)
-                ),),
+                  backgroundColor: const Color(0xff481E14),
+                  elevation: 0,
+                  minimumSize: Size(double.infinity, 56),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Text(
+                  "Login",
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: const Color.fromARGB(255, 249, 249, 248),
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 40),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Don't have an account? ",
+                    style: TextStyle(fontSize: 15, color: Colors.black),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RegisterScreen(),
+                        ),
+                      );
+                    },
+
+                    child: Text(
+                      "Sign Up",
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -137,5 +175,4 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-}
 }
