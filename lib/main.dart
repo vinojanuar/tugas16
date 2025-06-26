@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tugas16/view/home_screen.dart';
+import 'package:tugas16/view/login_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Perpustakaan',
       theme: ThemeData(primarySwatch: Colors.pink),
-      home: const HomeScreen(),
+      home: const LoginScreen(),
     );
   }
 }

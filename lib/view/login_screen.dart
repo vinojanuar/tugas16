@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:tugas16/helper/preference.dart';
+import 'package:tugas16/view/api/user_api.dart';
+import 'package:tugas16/view/home_screen.dart';
 import 'package:tugas16/view/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,32 +19,38 @@ class _LoginScreenState extends State<LoginScreen> {
 
   bool _obscurePassword = true;
 
-  void _login() async {
+  void login() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() {
       isLoading = true;
     });
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Berhasil Login"), backgroundColor: Colors.green),
+    final res = await UserService.login(
+      email: _emailController.text,
+      password: _passwordController.text,
     );
-
-    // Navigator.pushAndRemoveUntil(
-    //   context
-    //   ,MaterialPageRoute(builder: (context) => )
-    //   (route) => false,
-    // );
-    // } else {
-    //   ScaffoldMessenger.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text(
-    //         "Gagal Login, ${res["message"] ?? "Terjadi Kesalahan"}"
-    //         )
-    //         ,backgroundColor: Colors.red,
-    //    ),
-    //  );
-    // }
+    if (res["data"] != null) {
+      PreferenceHandler.saveToken(res["data"]["token"]);
+      print("Token: ${res["data"]["token"]}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Login successful!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => HomeScreen()),
+        (route) => false,
+      );
+      // Navigator.pop(context);
+    } else if (res["errors"] != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Maaf, ${res["message"]}"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
     setState(() {
       isLoading = false;
     });
@@ -108,7 +117,9 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(height: 20),
 
               ElevatedButton(
-                onPressed: _login,
+                onPressed: () {
+                  login();
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff481E14),
                   elevation: 0,
