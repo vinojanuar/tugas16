@@ -78,9 +78,7 @@ class _AppDrawerState extends State<AppDrawer> {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const Riwayatpinjaman(),
-                ),
+                MaterialPageRoute(builder: (context) => const RiwayatScreen()),
               );
             },
           ),

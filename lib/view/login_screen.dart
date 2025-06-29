@@ -64,6 +64,7 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
+          key: _formKey,
           child: ListView(
             padding: EdgeInsets.symmetric(vertical: 25),
             children: [

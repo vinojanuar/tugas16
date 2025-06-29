@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+import 'package:intl/intl.dart';
+import 'package:tugas16/view/api/user_api.dart';
+
+import 'package:tugas16/view/model/kembalikanbuku.dart';
 
 class Kembalikanbuku extends StatefulWidget {
   const Kembalikanbuku({super.key});
@@ -8,22 +13,23 @@ class Kembalikanbuku extends StatefulWidget {
 }
 
 class _KembalikanbukuState extends State<Kembalikanbuku> {
-  // 🔹 Daftar buku yang sedang dipinjam
-  List<String> bukuDipinjam = [
-    'Belajar Flutter',
-    'Logika Algoritma',
-    'Database Lanjut',
-    'Desain UI/UX',
-  ];
+  bool isLoading = true;
 
-  // 🔸 Fungsi untuk mengembalikan buku
-  void kembalikanBuku(int index) {
-    setState(() {
-      bukuDipinjam.removeAt(index); // hapus dari daftar pinjaman
-    });
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Buku berhasil dikembalikan!')));
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _kembalikanBuku(int index) async {
+    final returnDate = DateFormat("yyyy-MM-dd").format(DateTime.now());
+
+    try {
+      setState(() {});
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Gagal mengembalikan buku: $e")));
+    }
   }
 
   @override
@@ -33,10 +39,9 @@ class _KembalikanbukuState extends State<Kembalikanbuku> {
         title: const Text('Kembalikan Buku'),
         backgroundColor: Colors.green,
       ),
-      body: bukuDipinjam.isEmpty
+      body: isLoading
           ? const Center(child: Text('Tidak ada buku yang sedang dipinjam.'))
           : ListView.builder(
-              itemCount: bukuDipinjam.length,
               itemBuilder: (context, index) {
                 return Card(
                   margin: const EdgeInsets.symmetric(
@@ -45,7 +50,7 @@ class _KembalikanbukuState extends State<Kembalikanbuku> {
                   ),
                   child: ListTile(
                     leading: const Icon(Icons.book, color: Colors.orange),
-                    title: Text(bukuDipinjam[index]),
+
                     trailing: ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
@@ -56,9 +61,7 @@ class _KembalikanbukuState extends State<Kembalikanbuku> {
                           context: context,
                           builder: (context) => AlertDialog(
                             title: const Text('Konfirmasi'),
-                            content: Text(
-                              'Kembalikan buku "${bukuDipinjam[index]}"?',
-                            ),
+
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
@@ -66,8 +69,8 @@ class _KembalikanbukuState extends State<Kembalikanbuku> {
                               ),
                               TextButton(
                                 onPressed: () {
-                                  kembalikanBuku(index);
                                   Navigator.pop(context); // tutup dialog
+                                  _kembalikanBuku(index);
                                 },
                                 child: const Text('Kembalikan'),
                               ),

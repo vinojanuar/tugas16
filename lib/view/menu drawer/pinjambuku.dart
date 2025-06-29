@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:tugas16/view/api/user_api.dart'; // Pastikan ini di-import
+import 'package:tugas16/view/model/berhasilgetbuku.dart';
 
 class Pinjambuku extends StatefulWidget {
   const Pinjambuku({super.key});
@@ -8,28 +10,19 @@ class Pinjambuku extends StatefulWidget {
 }
 
 class _PinjambukuState extends State<Pinjambuku> {
-  // 🔹 Daftar buku yang tersedia untuk dipinjam
-  List<String> daftarBuku = [
-    'Pemrograman Dasar',
-    'Jaringan Komputer',
-    'Pemrograman Mobile',
-    'Sistem Operasi',
-    'Struktur Data',
-  ];
+  late Future<List<GetBuku>> _bukuFuture;
 
-  // 🔸 Daftar buku yang sudah dipinjam
-  List<String> bukuDipinjam = [];
+  @override
+  void initState() {
+    super.initState();
+    _bukuFuture = UserService().daftarbuku(); // Ambil data dari API
+  }
 
-  // 🔸 Fungsi untuk meminjam buku
-  void pinjamBuku(int index) {
-    setState(() {
-      bukuDipinjam.add(daftarBuku[index]); // pindahkan ke daftar pinjaman
-      daftarBuku.removeAt(index); // hapus dari daftar tersedia
-    });
-
+  void pinjamBuku(GetBuku buku) {
+    // Proses peminjaman nanti bisa ditambahkan di sini
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(SnackBar(content: Text('Buku berhasil dipinjam!')));
+    ).showSnackBar(SnackBar(content: Text('Berhasil meminjam: ${buku.title}')));
   }
 
   @override
@@ -39,51 +32,64 @@ class _PinjambukuState extends State<Pinjambuku> {
         title: const Text('Pinjam Buku'),
         backgroundColor: Colors.blueAccent,
       ),
-      body: daftarBuku.isEmpty
-          ? const Center(child: Text('Tidak ada buku yang tersedia.'))
-          : ListView.builder(
-              itemCount: daftarBuku.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+      body: FutureBuilder<List<GetBuku>>(
+        future: _bukuFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Gagal memuat data: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Tidak ada buku yang tersedia.'));
+          }
+
+          final daftarBuku = snapshot.data!;
+
+          return ListView.builder(
+            itemCount: daftarBuku.length,
+            itemBuilder: (context, index) {
+              final buku = daftarBuku[index];
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: ListTile(
+                  leading: const Icon(Icons.book, color: Colors.deepPurple),
+                  title: Text(buku.title),
+                  subtitle: Text(
+                    'Penulis: ${buku.author}\nStok: ${buku.stock}',
                   ),
-                  child: ListTile(
-                    leading: const Icon(Icons.book, color: Colors.deepPurple),
-                    title: Text(daftarBuku[index]),
-                    trailing: ElevatedButton(
-                      onPressed: () {
-                        // Konfirmasi sebelum meminjam
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: const Text('Konfirmasi'),
-                            content: Text(
-                              'Yakin ingin meminjam "${daftarBuku[index]}"?',
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text('Batal'),
-                              ),
-                              TextButton(
-                                onPressed: () {
-                                  pinjamBuku(index); // proses peminjaman
-                                  Navigator.pop(context);
-                                },
-                                child: const Text('Pinjam'),
-                              ),
-                            ],
+                  trailing: ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Konfirmasi'),
+                          content: Text(
+                            'Yakin ingin meminjam "${buku.title}"?',
                           ),
-                        );
-                      },
-                      child: const Text('Pinjam'),
-                    ),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: const Text('Batal'),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                pinjamBuku(buku);
+                                Navigator.pop(context);
+                              },
+                              child: const Text('Pinjam'),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    child: const Text('Pinjam'),
                   ),
-                );
-              },
-            ),
+                ),
+              );
+            },
+          );
+        },
+      ),
     );
   }
 }
