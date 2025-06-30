@@ -1,37 +1,34 @@
-// To parse this JSON data, do
-//
-//     final pinjambuku = pinjambukuFromJson(jsonString);
-
 import 'dart:convert';
 
-Pinjambuku pinjambukuFromJson(String str) =>
-    Pinjambuku.fromJson(json.decode(str));
+PinjamBukuResponse pinjamBukuFromJson(String str) =>
+    PinjamBukuResponse.fromJson(json.decode(str));
 
-String pinjambukuToJson(Pinjambuku data) => json.encode(data.toJson());
+String pinjamBukuToJson(PinjamBukuResponse data) => json.encode(data.toJson());
 
-class Pinjambuku {
-  String message;
-  Datapinjambuku data;
+class PinjamBukuResponse {
+  final String message;
+  final DataPinjamBuku data;
 
-  Pinjambuku({required this.message, required this.data});
+  PinjamBukuResponse({required this.message, required this.data});
 
-  factory Pinjambuku.fromJson(Map<String, dynamic> json) => Pinjambuku(
-    message: json["message"],
-    data: Datapinjambuku.fromJson(json["data"]),
-  );
+  factory PinjamBukuResponse.fromJson(Map<String, dynamic> json) =>
+      PinjamBukuResponse(
+        message: json["message"],
+        data: DataPinjamBuku.fromJson(json["data"]),
+      );
 
   Map<String, dynamic> toJson() => {"message": message, "data": data.toJson()};
 }
 
-class Datapinjambuku {
-  int userId;
-  int bookId;
-  String borrowDate;
-  String updatedAt;
-  String createdAt;
-  int id;
+class DataPinjamBuku {
+  final int userId;
+  final int bookId;
+  final String borrowDate;
+  final String updatedAt;
+  final String createdAt;
+  final int id;
 
-  Datapinjambuku({
+  DataPinjamBuku({
     required this.userId,
     required this.bookId,
     required this.borrowDate,
@@ -40,7 +37,7 @@ class Datapinjambuku {
     required this.id,
   });
 
-  factory Datapinjambuku.fromJson(Map<String, dynamic> json) => Datapinjambuku(
+  factory DataPinjamBuku.fromJson(Map<String, dynamic> json) => DataPinjamBuku(
     userId: json["user_id"],
     bookId: json["book_id"],
     borrowDate: json["borrow_date"],

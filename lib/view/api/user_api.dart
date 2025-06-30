@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:tugas16/helper/preference.dart';
 import 'package:tugas16/view/endpoint.dart';
-
 import 'package:tugas16/view/model/berhasilgetbuku.dart';
 import 'package:tugas16/view/model/delete.dart';
 import 'package:tugas16/view/model/kembalikanbuku.dart';
@@ -99,49 +98,56 @@ class UserService {
     }
   }
 
-  Future<Datapinjambuku> pinjamBuku({
-    required int userId,
-    required int bookId,
-    required String borrowDate,
-  }) async {
-    String? token = await PreferenceHandler.getToken();
+  Future<PinjamBukuResponse> pinjamBuku({required int bookId}) async {
+    final token = await PreferenceHandler.getToken();
 
     final response = await http.post(
-      Uri.parse(Endpoint.postpinjambuku),
-      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
-      body: {
-        "user_id": userId.toString(),
-        "book_id": bookId.toString(),
-        "borrow_date": borrowDate,
+      Uri.parse(Endpoint.pinjamBuku),
+      headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
       },
+      body: jsonEncode({'book_id': bookId}),
     );
-    print("Response Pinjam Buku: ${response.body}");
+
+    print("Status: ${response.statusCode}");
+    print("Response: ${response.body}");
 
     if (response.statusCode == 200) {
-      final hasil = pinjambukuFromJson(response.body);
-      return hasil.data;
+      return pinjamBukuFromJson(response.body);
     } else {
-      print("Gagal Pinjam Buku: ${response.statusCode}");
-      throw Exception("Gagal pinjam buku: ${response.statusCode}");
+      throw Exception('Gagal meminjam buku: ${response.body}');
     }
   }
 
   Future<Kembalikanbuku> kembalikanBuku({
     required int borrowId,
     required String returnDate,
+    required int bookId,
   }) async {
     String? token = await PreferenceHandler.getToken();
 
     final response = await http.put(
-      Uri.parse("${Endpoint.baseUrlApi}/borrow"),
-      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
+      Uri.parse("${Endpoint.baseUrlApi}/return/$borrowId"),
+      headers: {
+        "Accept": "application/json",
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        "book_id": bookId.toString(),
+        "return_date": returnDate,
+      }),
     );
 
+    print("Status: ${response.statusCode}");
+    print("Response: ${response.body}");
+
     if (response.statusCode == 200) {
-      final List<dynamic> jsonData = json.decode(response.body)['data'];
       return kembalikanbukuFromJson(response.body);
     } else {
-      throw Exception("Gagal mengambil data pinjaman");
+      throw Exception("Gagal mengembalikan buku: ${response.body}");
     }
   }
 
@@ -165,7 +171,7 @@ class UserService {
 
     final response = await http.delete(
       Uri.parse(
-        '${Endpoint.baseUrl}/buku/$id',
+        '${Endpoint.baseUrlApi}/books/$id',
       ), // sesuaikan endpoint hapus buku
       headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
     );

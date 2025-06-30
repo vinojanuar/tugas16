@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:tugas16/helper/preference.dart';
 import 'package:tugas16/view/api/user_api.dart';
 import 'package:tugas16/view/home_screen.dart';
+import 'package:tugas16/view/navigator/buttomnavigator.dart';
 import 'package:tugas16/view/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -16,33 +17,55 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoggedIn();
+  }
+
+  void _checkLoggedIn() async {
+    final token = await PreferenceHandler.getToken();
+    if (token != null) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    }
+  }
 
   void login() async {
     if (!_formKey.currentState!.validate()) return;
+
     setState(() {
       isLoading = true;
     });
+
     final res = await UserService.login(
       email: _emailController.text,
       password: _passwordController.text,
     );
+
     if (res["data"] != null) {
-      PreferenceHandler.saveToken(res["data"]["token"]);
-      print("Token: ${res["data"]["token"]}");
+      final token = res["data"]["token"];
+      final userId = res["data"]["user"]["id"];
+
+      await PreferenceHandler.saveToken(token);
+      await PreferenceHandler.saveUserId(userId);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Login successful!"),
+        const SnackBar(
+          content: Text("Login berhasil!"),
           backgroundColor: Colors.green,
         ),
       );
+
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => const BottomNavigator()),
         (route) => false,
       );
-      // Navigator.pop(context);
     } else if (res["errors"] != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -51,6 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     }
+
     setState(() {
       isLoading = false;
     });
@@ -60,91 +84,104 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: ListView(
-            padding: EdgeInsets.symmetric(vertical: 25),
+            padding: const EdgeInsets.symmetric(vertical: 32),
             children: [
-              SizedBox(height: 37),
-
-              Center(child: Image.asset('assets/images/Logo_Perpustakaan.png')),
-              Text(
-                "Perpustakaan",
-                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              const SizedBox(height: 30),
+              Center(
+                child: Image.asset(
+                  'assets/images/Logo_Perpustakaan.png',
+                  height: 100,
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Center(
+                child: Text(
+                  "Perpustakaan Digital",
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
               ),
 
-              //TextFormFieldEmail
-              SizedBox(height: 40),
-              Text("Email"),
-              SizedBox(height: 10),
+              const SizedBox(height: 40),
+              const Text("Email", style: TextStyle(color: Colors.black)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
-                decoration: _inputDecoration("Masukan email anda"),
+                decoration: _inputDecoration(
+                  "Masukkan email Anda",
+                  Icons.email,
+                ),
                 validator: (value) =>
                     value!.isEmpty ? 'Email tidak boleh kosong' : null,
               ),
 
-              //TextFormFieldPassword
-              SizedBox(height: 20),
-              Text("Password"),
-              SizedBox(height: 10),
+              const SizedBox(height: 20),
+              const Text("Password", style: TextStyle(color: Colors.black)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
-                keyboardType: TextInputType.emailAddress,
-                decoration: _inputDecoration("Masukan password anda").copyWith(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Colors.grey,
+                decoration:
+                    _inputDecoration(
+                      "Masukkan password Anda",
+                      Icons.lock,
+                    ).copyWith(
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                ),
                 validator: (value) =>
                     value!.isEmpty ? 'Password tidak boleh kosong' : null,
               ),
 
-              SizedBox(height: 20),
-
+              const SizedBox(height: 30),
               ElevatedButton(
-                onPressed: () {
-                  login();
-                },
+                onPressed: login,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff481E14),
+                  backgroundColor: Colors.black,
                   elevation: 0,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 52),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
-                  "Login",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: const Color.fromARGB(255, 249, 249, 248),
-                  ),
-                ),
+                child: isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        "Login",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
 
-              SizedBox(height: 40),
+              const SizedBox(height: 35),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Don't have an account? ",
+                  const Text(
+                    "Belum punya akun? ",
                     style: TextStyle(fontSize: 15, color: Colors.black),
                   ),
                   GestureDetector(
@@ -156,9 +193,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       );
                     },
-
-                    child: Text(
-                      "Sign Up",
+                    child: const Text(
+                      "Daftar",
                       style: TextStyle(
                         fontSize: 15,
                         color: Colors.black,
@@ -175,15 +211,20 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _inputDecoration(String hint, IconData icon) {
     return InputDecoration(
-      labelStyle: TextStyle(color: Colors.black),
       hintText: hint,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(13)),
-
+      prefixIcon: Icon(icon, color: Colors.black),
+      hintStyle: const TextStyle(color: Colors.grey),
+      filled: true,
+      fillColor: Colors.grey[100],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(13),
+        borderSide: BorderSide.none,
+      ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(13),
+        borderSide: const BorderSide(color: Colors.black),
       ),
     );
   }

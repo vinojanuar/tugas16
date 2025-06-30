@@ -1,102 +1,135 @@
-import 'package:flutter/material.dart';
-import 'package:tugas16/view/menu%20drawer/deletbuku.dart';
-import 'package:tugas16/view/menu%20drawer/kembalikanbuku.dart';
-import 'package:tugas16/view/menu%20drawer/pinjambuku.dart';
-import 'package:tugas16/view/menu%20drawer/riwayatpinjaman.dart';
+// import 'package:flutter/material.dart';
+// import 'package:tugas16/helper/preference.dart';
+// import 'package:tugas16/view/login_screen.dart';
+// import 'package:tugas16/view/menu drawer/deletbuku.dart';
+// import 'package:tugas16/view/menu drawer/kembalikanbuku.dart';
+// import 'package:tugas16/view/menu drawer/pinjambuku.dart';
+// import 'package:tugas16/view/menu drawer/riwayatpinjaman.dart';
 
-class AppDrawer extends StatefulWidget {
-  const AppDrawer({super.key});
+// class AppDrawer extends StatefulWidget {
+//   const AppDrawer({super.key});
 
-  @override
-  State<AppDrawer> createState() => _AppDrawerState();
-}
+//   @override
+//   State<AppDrawer> createState() => _AppDrawerState();
+// }
 
-class _AppDrawerState extends State<AppDrawer> {
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blue),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CircleAvatar(
-                  backgroundColor: Colors.white,
-                  radius: 30,
-                  child: Icon(
-                    Icons.account_circle_sharp,
-                    size: 50,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  "Vino",
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                ),
-                SizedBox(height: 5),
+// class _AppDrawerState extends State<AppDrawer> {
+//   String userName = 'Nama Pengguna';
+//   String userEmail = 'email@pengguna.com';
 
-                Text("Email: Vino@gmail.com", style: TextStyle(fontSize: 15)),
-              ],
-            ),
-          ),
-          ListTile(
-            leading: Icon(Icons.bookmark_add, size: 35),
-            title: Text(
-              "Pinjam Buku",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Pinjambuku()),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.bookmark_remove, size: 35),
-            title: Text(
-              "Kembalikan Buku",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Kembalikanbuku()),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.history, size: 35),
-            title: Text(
-              "Riwayat Pinjaman",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const RiwayatScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.delete_forever, size: 35),
-            title: Text(
-              "Delete Buku",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const Deletbuku()),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
+//   @override
+//   void initState() {
+//     super.initState();
+//     loadUserProfile();
+//   }
+
+//   Future<void> loadUserProfile() async {
+//     final name = await PreferenceHandler.getUserName() ?? 'Nama Pengguna';
+//     final email =
+//         await PreferenceHandler.getUserEmail() ?? 'email@pengguna.com';
+//     setState(() {
+//       userName = name;
+//       userEmail = email;
+//     });
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Drawer(
+//       child: Column(
+//         children: [
+//           UserAccountsDrawerHeader(
+//             decoration: const BoxDecoration(color: Colors.white),
+//             currentAccountPicture: CircleAvatar(
+//               backgroundColor: Colors.black,
+//               child: const Icon(Icons.person, size: 40, color: Colors.white),
+//             ),
+//             accountName: Text(
+//               userName,
+//               style: const TextStyle(
+//                 fontWeight: FontWeight.bold,
+//                 color: Colors.black,
+//                 fontSize: 16,
+//               ),
+//             ),
+//             accountEmail: Text(
+//               userEmail,
+//               style: const TextStyle(
+//                 color: Color.fromARGB(255, 0, 0, 0),
+//                 fontSize: 14,
+//               ),
+//             ),
+//           ),
+//           Expanded(
+//             child: ListView(
+//               children: [
+//                 _drawerItem(
+//                   icon: Icons.book_online,
+//                   text: "Pinjam Buku",
+//                   onTap: () => Navigator.push(
+//                     context,
+//                     MaterialPageRoute(builder: (_) => const Pinjambuku()),
+//                   ),
+//                 ),
+//                 _drawerItem(
+//                   icon: Icons.book_outlined,
+//                   text: "Kembalikan Buku",
+//                   onTap: () => Navigator.push(
+//                     context,
+//                     MaterialPageRoute(builder: (_) => const Kembalikanbuku()),
+//                   ),
+//                 ),
+//                 _drawerItem(
+//                   icon: Icons.history,
+//                   text: "Riwayat Pinjaman",
+//                   onTap: () => Navigator.push(
+//                     context,
+//                     MaterialPageRoute(builder: (_) => const RiwayatScreen()),
+//                   ),
+//                 ),
+//                 _drawerItem(
+//                   icon: Icons.delete_forever,
+//                   text: "Delete Buku",
+//                   onTap: () => Navigator.push(
+//                     context,
+//                     MaterialPageRoute(builder: (_) => const Deletbuku()),
+//                   ),
+//                 ),
+//                 const Divider(),
+//                 _drawerItem(
+//                   icon: Icons.logout_outlined,
+//                   text: "Logout",
+//                   onTap: () async {
+//                     await PreferenceHandler.removeToken();
+//                     Navigator.pushAndRemoveUntil(
+//                       context,
+//                       MaterialPageRoute(
+//                         builder: (context) => const LoginScreen(),
+//                       ),
+//                       (route) => false,
+//                     );
+//                   },
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _drawerItem({
+//     required IconData icon,
+//     required String text,
+//     required VoidCallback onTap,
+//   }) {
+//     return ListTile(
+//       leading: Icon(icon, color: Colors.black),
+//       title: Text(
+//         text,
+//         style: const TextStyle(color: Colors.black, fontSize: 16),
+//       ),
+//       onTap: onTap,
+//     );
+//   }
+// }

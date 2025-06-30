@@ -5,7 +5,7 @@ class Endpoint {
   static const String login = "$baseUrl/api/login";
   static const String getBuku = "$baseUrlApi/books";
   static const String postbuku = "$baseUrlApi/books";
-  static const String postpinjambuku = "$baseUrlApi/borrow";
+  static const String pinjamBuku = "$baseUrlApi/borrow";
   static const String kembalikanbuku = "$baseUrlApi/return/borrow";
   static const String riwayatpinjambuku = "$baseUrlApi/history";
   static const String deletebuku = "$baseUrlApi/books/borrow";

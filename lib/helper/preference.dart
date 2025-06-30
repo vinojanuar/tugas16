@@ -1,36 +1,54 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PreferenceHandler {
-  static const String _tokenKey = "token";
-  static const String _userIdKey = "user_id";
-
-  // ✅ Simpan Token
   static Future<void> saveToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_tokenKey, token);
+    await prefs.setString('token', token);
   }
 
-  // ✅ Ambil Token
   static Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString(_tokenKey);
+    return prefs.getString('token');
   }
 
-  // ✅ Simpan User ID
-  static Future<void> saveUserId(int userId) async {
+  static Future<void> saveUserId(int id) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_userIdKey, userId);
+    await prefs.setInt('user_id', id);
   }
 
-  // ✅ Ambil User ID → INI YANG DIBUTUHKAN
   static Future<int?> getUserId() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getInt(_userIdKey);
+    return prefs.getInt('user_id');
   }
 
-  // ✅ Logout atau hapus semua data
-  static Future<void> clear() async {
+  // Tambahkan ini 👇
+  static Future<void> saveUserName(String name) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_name', name);
+  }
+
+  static Future<String?> getUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_name');
+  }
+
+  static Future<void> saveUserEmail(String email) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('user_email', email);
+  }
+
+  static Future<String?> getUserEmail() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_email');
+  }
+
+  static Future<void> clearData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+  }
+
+  static Future<void> removeToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
   }
 }

@@ -21,15 +21,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       isLoading = true;
     });
+
     final res = await UserService.registerUser(
       email: _emailController.text,
       name: _nameController.text,
       password: _passwordController.text,
     );
+
     if (res["data"] != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Registration successful!"),
+        const SnackBar(
+          content: Text("Pendaftaran berhasil!"),
           backgroundColor: Colors.green,
         ),
       );
@@ -42,6 +44,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       );
     }
+
     setState(() {
       isLoading = false;
     });
@@ -50,10 +53,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 254, 254, 254),
       appBar: AppBar(
         backgroundColor: Colors.white,
+        elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -62,95 +67,103 @@ class _RegisterScreenState extends State<RegisterScreen> {
           },
         ),
       ),
-
-      backgroundColor: Colors.white,
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
-              Image.asset(
-                'assets/images/Logo_Perpustakaan.png',
-                height: 200,
-                fit: BoxFit.contain,
+              Center(
+                child: Image.asset(
+                  'assets/images/Logo_Perpustakaan.png',
+                  height: 120,
+                ),
               ),
-              Text(
-                "Sign UP",
-                style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+              const SizedBox(height: 16),
+              const Text(
+                "Daftar Akun",
+                style: TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
+                textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 30),
 
-              SizedBox(height: 20),
-
-              Text("Nama Lengkap"),
+              const Text("Nama Lengkap", style: TextStyle(color: Colors.black)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _nameController,
-                decoration: _inputDecoration("Masukkan nama lengkap"),
+                decoration: _inputDecoration(
+                  "Masukkan nama lengkap",
+                  Icons.person,
+                ),
                 validator: (value) =>
                     value!.isEmpty ? 'Nama tidak boleh kosong' : null,
               ),
 
-              Text("Email"),
+              const SizedBox(height: 20),
+              const Text("Email", style: TextStyle(color: Colors.black)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _emailController,
-                decoration: _inputDecoration("Masukkan Email anda"),
+                decoration: _inputDecoration("Masukkan email", Icons.email),
                 validator: (value) =>
                     value!.isEmpty ? 'Email tidak boleh kosong' : null,
               ),
 
-              Text("Password"),
+              const SizedBox(height: 20),
+              const Text("Password", style: TextStyle(color: Colors.black)),
+              const SizedBox(height: 8),
               TextFormField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
-                decoration: _inputDecoration("Masukkan Password").copyWith(
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword
-                          ? Icons.visibility
-                          : Icons.visibility_off,
-                      color: Colors.grey,
+                decoration: _inputDecoration("Masukkan password", Icons.lock)
+                    .copyWith(
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                          color: Colors.black,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
+                      ),
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
-                    },
-                  ),
-                ),
                 validator: (value) =>
-                    value!.length < 6 ? 'Email tidak boleh kosong' : null,
+                    value!.length < 6 ? 'Password minimal 6 karakter' : null,
               ),
 
-              SizedBox(height: 20),
-
+              const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
                     register();
-                    print("Email: ${_emailController.text}");
-                    print("Email: ${_nameController.text}");
-                    print("Email: ${_passwordController.text}");
-                    //register(); jangan lupa buatkan fungsi untuk kasih data ke server
                   }
                 },
-
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
                   elevation: 0,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-
-                child: Text(
-                  "Daftar Sekarang",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 19,
-                    color: const Color.fromARGB(255, 253, 253, 253),
-                  ),
-                ),
+                child: isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        "Daftar Sekarang",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ],
           ),
@@ -159,15 +172,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String hint) {
+  InputDecoration _inputDecoration(String hint, IconData icon) {
     return InputDecoration(
-      labelStyle: TextStyle(color: Colors.amberAccent),
       hintText: hint,
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
+      hintStyle: const TextStyle(color: Colors.grey),
+      prefixIcon: Icon(icon, color: Colors.black),
+      filled: true,
+      fillColor: Colors.grey[100],
+      border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.black),
       ),
     );
   }
