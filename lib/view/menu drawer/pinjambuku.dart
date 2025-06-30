@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tugas16/view/api/user_api.dart'; // Pastikan ini di-import
+import 'package:tugas16/view/api/user_api.dart';
 import 'package:tugas16/view/model/berhasilgetbuku.dart';
 
 class Pinjambuku extends StatefulWidget {
@@ -15,22 +15,30 @@ class _PinjambukuState extends State<Pinjambuku> {
   @override
   void initState() {
     super.initState();
-    _bukuFuture = UserService().daftarbuku(); // Ambil data dari API
+    _bukuFuture = UserService().daftarbuku();
   }
 
-  void pinjamBuku(GetBuku buku) {
-    // Proses peminjaman nanti bisa ditambahkan di sini
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text('Berhasil meminjam: ${buku.title}')));
+  Future<void> _pinjamBuku(GetBuku buku) async {
+    try {
+      final service = UserService();
+      final result = await service.pinjamBuku(bookId: buku.id);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Berhasil meminjam: ${result.data.id}")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Gagal meminjam buku: $e")));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Pinjam Buku'),
-        backgroundColor: Colors.blueAccent,
+        title: const Text("Pinjam Buku"),
+        backgroundColor: Colors.blue,
       ),
       body: FutureBuilder<List<GetBuku>>(
         future: _bukuFuture,
@@ -38,51 +46,46 @@ class _PinjambukuState extends State<Pinjambuku> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return Center(child: Text('Gagal memuat data: ${snapshot.error}'));
+            return Center(child: Text("Error: ${snapshot.error}"));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Tidak ada buku yang tersedia.'));
+            return const Center(child: Text("Tidak ada buku tersedia."));
           }
 
-          final daftarBuku = snapshot.data!;
+          final bukuList = snapshot.data!;
 
           return ListView.builder(
-            itemCount: daftarBuku.length,
+            itemCount: bukuList.length,
             itemBuilder: (context, index) {
-              final buku = daftarBuku[index];
+              final buku = bukuList[index];
               return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                margin: const EdgeInsets.all(8),
                 child: ListTile(
-                  leading: const Icon(Icons.book, color: Colors.deepPurple),
                   title: Text(buku.title),
                   subtitle: Text(
-                    'Penulis: ${buku.author}\nStok: ${buku.stock}',
+                    "Penulis: ${buku.author}\nStok: ${buku.stock}",
                   ),
                   trailing: ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: const Text('Konfirmasi'),
-                          content: Text(
-                            'Yakin ingin meminjam "${buku.title}"?',
+                    child: const Text("Pinjam"),
+                    onPressed: () => showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        title: const Text("Konfirmasi"),
+                        content: Text("Pinjam buku \"${buku.title}\"?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(ctx),
+                            child: const Text("Batal"),
                           ),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Batal'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                pinjamBuku(buku);
-                                Navigator.pop(context);
-                              },
-                              child: const Text('Pinjam'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                    child: const Text('Pinjam'),
+                          TextButton(
+                            onPressed: () {
+                              Navigator.pop(ctx);
+                              _pinjamBuku(buku);
+                            },
+                            child: const Text("Pinjam"),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               );

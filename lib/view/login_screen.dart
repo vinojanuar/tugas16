@@ -16,33 +16,56 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
   bool _obscurePassword = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkLoggedIn();
+  }
+
+  void _checkLoggedIn() async {
+    final token = await PreferenceHandler.getToken();
+    if (token != null) {
+      // Jika token ditemukan, langsung masuk ke HomeScreen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    }
+  }
 
   void login() async {
     if (!_formKey.currentState!.validate()) return;
+
     setState(() {
       isLoading = true;
     });
+
     final res = await UserService.login(
       email: _emailController.text,
       password: _passwordController.text,
     );
+
     if (res["data"] != null) {
-      PreferenceHandler.saveToken(res["data"]["token"]);
-      print("Token: ${res["data"]["token"]}");
+      final token = res["data"]["token"];
+      final userId = res["data"]["user"]["id"];
+
+      await PreferenceHandler.saveToken(token);
+      await PreferenceHandler.saveUserId(userId);
+
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text("Login successful!"),
+        const SnackBar(
+          content: Text("Login berhasil!"),
           backgroundColor: Colors.green,
         ),
       );
+
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
         (route) => false,
       );
-      // Navigator.pop(context);
     } else if (res["errors"] != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -51,6 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     }
+
     setState(() {
       isLoading = false;
     });
@@ -60,26 +84,23 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
-            padding: EdgeInsets.symmetric(vertical: 25),
+            padding: const EdgeInsets.symmetric(vertical: 25),
             children: [
-              SizedBox(height: 37),
-
+              const SizedBox(height: 37),
               Center(child: Image.asset('assets/images/Logo_Perpustakaan.png')),
-              Text(
+              const Text(
                 "Perpustakaan",
                 style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
               ),
 
-              //TextFormFieldEmail
-              SizedBox(height: 40),
-              Text("Email"),
-              SizedBox(height: 10),
+              const SizedBox(height: 40),
+              const Text("Email"),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -88,14 +109,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     value!.isEmpty ? 'Email tidak boleh kosong' : null,
               ),
 
-              //TextFormFieldPassword
-              SizedBox(height: 20),
-              Text("Password"),
-              SizedBox(height: 10),
+              const SizedBox(height: 20),
+              const Text("Password"),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
-                keyboardType: TextInputType.emailAddress,
                 decoration: _inputDecoration("Masukan password anda").copyWith(
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -115,35 +134,34 @@ class _LoginScreenState extends State<LoginScreen> {
                     value!.isEmpty ? 'Password tidak boleh kosong' : null,
               ),
 
-              SizedBox(height: 20),
-
+              const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () {
-                  login();
-                },
+                onPressed: login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xff481E14),
                   elevation: 0,
-                  minimumSize: Size(double.infinity, 56),
+                  minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: Text(
-                  "Login",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: const Color.fromARGB(255, 249, 249, 248),
-                  ),
-                ),
+                child: isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        "Login",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
 
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
+                  const Text(
                     "Don't have an account? ",
                     style: TextStyle(fontSize: 15, color: Colors.black),
                   ),
@@ -156,8 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       );
                     },
-
-                    child: Text(
+                    child: const Text(
                       "Sign Up",
                       style: TextStyle(
                         fontSize: 15,
@@ -177,12 +194,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   InputDecoration _inputDecoration(String hint) {
     return InputDecoration(
-      labelStyle: TextStyle(color: Colors.black),
+      labelStyle: const TextStyle(color: Colors.black),
       hintText: hint,
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(13)),
-
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
+        borderSide: const BorderSide(color: Colors.black),
         borderRadius: BorderRadius.circular(12),
       ),
     );

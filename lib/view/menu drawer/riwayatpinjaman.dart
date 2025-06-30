@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:tugas16/helper/preference.dart';
 import 'package:tugas16/view/api/user_api.dart';
 import 'package:tugas16/view/model/riwayatpinjambuku.dart';
 
@@ -11,12 +12,26 @@ class RiwayatScreen extends StatefulWidget {
 }
 
 class _RiwayatScreenState extends State<RiwayatScreen> {
-  late Future<Riwayatpinjambuku> riwayat;
+  late Future<List<Riwayat>> _riwayatFuture;
 
   @override
   void initState() {
     super.initState();
-    riwayat = UserService().getRiwayatPeminjaman();
+    _riwayatFuture = _fetchUserRiwayat();
+  }
+
+  Future<List<Riwayat>> _fetchUserRiwayat() async {
+    try {
+      final userId = await PreferenceHandler.getUserId();
+      if (userId == null) {
+        throw Exception("User ID tidak ditemukan. Tidak dapat memuat riwayat.");
+      }
+      // Panggil method dari UserService untuk mendapatkan riwayat
+      return await UserService().getRiwayatPeminjaman();
+    } catch (e) {
+      print('DEBUG ERROR: Gagal mengambil riwayat pengguna: $e');
+      rethrow;
+    }
   }
 
   @override
@@ -27,7 +42,7 @@ class _RiwayatScreenState extends State<RiwayatScreen> {
         backgroundColor: Colors.deepPurple,
       ),
       body: FutureBuilder<Riwayatpinjambuku>(
-        future: riwayat,
+        future: _riwayatFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());

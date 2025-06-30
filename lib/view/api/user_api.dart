@@ -1,8 +1,8 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:tugas16/helper/preference.dart';
 import 'package:tugas16/view/endpoint.dart';
-
 import 'package:tugas16/view/model/berhasilgetbuku.dart';
 import 'package:tugas16/view/model/delete.dart';
 import 'package:tugas16/view/model/kembalikanbuku.dart';
@@ -99,30 +99,26 @@ class UserService {
     }
   }
 
-  Future<Datapinjambuku> pinjamBuku({
-    required int userId,
-    required int bookId,
-    required String borrowDate,
-  }) async {
-    String? token = await PreferenceHandler.getToken();
+  Future<PinjamBukuResponse> pinjamBuku({required int bookId}) async {
+    final token = await PreferenceHandler.getToken();
 
     final response = await http.post(
-      Uri.parse(Endpoint.postpinjambuku),
-      headers: {"Accept": "application/json", "Authorization": "Bearer $token"},
-      body: {
-        "user_id": userId.toString(),
-        "book_id": bookId.toString(),
-        "borrow_date": borrowDate,
+      Uri.parse(Endpoint.pinjamBuku),
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Accept': 'application/json',
+        "Content-Type": "application/json",
       },
+      body: jsonEncode({'book_id': bookId}),
     );
-    print("Response Pinjam Buku: ${response.body}");
+
+    print("Status: ${response.statusCode}");
+    print("Response: ${response.body}");
 
     if (response.statusCode == 200) {
-      final hasil = pinjambukuFromJson(response.body);
-      return hasil.data;
+      return pinjamBukuFromJson(response.body);
     } else {
-      print("Gagal Pinjam Buku: ${response.statusCode}");
-      throw Exception("Gagal pinjam buku: ${response.statusCode}");
+      throw Exception('Gagal meminjam buku: ${response.body}');
     }
   }
 
@@ -145,35 +141,54 @@ class UserService {
     }
   }
 
-  Future<Riwayatpinjambuku> getRiwayatPeminjaman() async {
+  Future<List<Riwayatpinjambuku>> getRiwayatPeminjaman(String userId) async {
+    // <--- PERUBAHAN DI SINI
     final token = await PreferenceHandler.getToken();
+    final url = Uri.parse('${Endpoint.riwayatpinjambuku}/$userId');
+
+    print('UserService DEBUG: Mengambil riwayat dari URL: $url'); // Debugging
+    print('UserService DEBUG: Menggunakan Token: $token'); // Debugging
 
     final response = await http.get(
-      Uri.parse('${Endpoint.riwayatpinjambuku}'),
+      url, // Gunakan URL yang sudah disesuaikan
       headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
     );
 
+    print(
+      'UserService DEBUG: Status respons riwayat: ${response.statusCode}',
+    ); // Debugging
+    print(
+      'UserService DEBUG: Body respons riwayat: ${response.body}',
+    ); // Debugging
+
     if (response.statusCode == 200) {
-      return riwayatpinjambukuFromJson(response.body);
+      // Menguraikan respons lengkap dari API ke model Riwayatpinjambuku
+      final Riwayatpinjambuku responseModel = riwayatpinjambukuFromJson(
+        response.body,
+      );
+
+      // Mengembalikan hanya List<Riwayat> yang ada di dalam properti 'data' dari responseModel
+      return responseModel.data; // <--- PERUBAHAN PENTING DI SINI
     } else {
+      // Throw exception dengan detail respons dari server jika ada error
       throw Exception('Gagal mengambil riwayat peminjaman: ${response.body}');
     }
   }
 
-  Future<Deletebuku> deleteBuku({required int id}) async {
-    final token = await PreferenceHandler.getToken();
+  // ... (method deleteBuku Anda di bawah)
+}
 
-    final response = await http.delete(
-      Uri.parse(
-        '${Endpoint.baseUrl}/buku/$id',
-      ), // sesuaikan endpoint hapus buku
-      headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
-    );
+Future<Deletebuku> deleteBuku({required int id}) async {
+  final token = await PreferenceHandler.getToken();
 
-    if (response.statusCode == 200) {
-      return deletebukuFromJson(response.body);
-    } else {
-      throw Exception('Gagal menghapus buku: ${response.body}');
-    }
+  final response = await http.delete(
+    Uri.parse('${Endpoint.baseUrl}/buku/$id'), // sesuaikan endpoint hapus buku
+    headers: {'Authorization': 'Bearer $token', 'Accept': 'application/json'},
+  );
+
+  if (response.statusCode == 200) {
+    return deletebukuFromJson(response.body);
+  } else {
+    throw Exception('Gagal menghapus buku: ${response.body}');
   }
 }
