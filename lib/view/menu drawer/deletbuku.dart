@@ -34,21 +34,21 @@ class _DeletbukuState extends State<Deletbuku> {
     }
   }
 
-  void hapusBuku(int index, int id) async {
-    try {
-      final response = await UserService().deleteBuku(id: id);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(response.message)));
-      setState(() {
-        daftarBuku.removeAt(index);
-      });
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Gagal menghapus buku: $e")));
-    }
-  }
+  // void hapusBuku(int index, int id) async {
+  //   try {
+  //     // final response = await UserService().deleteBuku(id: id);
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     // ).showSnackBar(SnackBar(content: Text(response.message)));
+  //     // setState(() {
+  //     //   daftarBuku.removeAt(index);
+  //     // });
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(
+  //       context,
+  //     ).showSnackBar(SnackBar(content: Text("Gagal menghapus buku: $e")));
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -111,16 +111,16 @@ class _DeletbukuState extends State<Deletbuku> {
                                 onPressed: () => Navigator.pop(context),
                                 child: const Text('Batal'),
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                  hapusBuku(index, buku.id);
-                                },
-                                child: const Text(
-                                  'Hapus',
-                                  style: TextStyle(color: Colors.red),
-                                ),
-                              ),
+                              // TextButton(
+                              //   onPressed: () {
+                              //     Navigator.pop(context);
+                              //     hapusBuku(index, buku.id);
+                              //   },
+                              //   child: const Text(
+                              //     'Hapus',
+                              //     style: TextStyle(color: Colors.red),
+                              //   ),
+                              // ),
                             ],
                           ),
                         );

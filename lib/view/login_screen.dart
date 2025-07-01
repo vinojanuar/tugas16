@@ -38,16 +38,25 @@ class _LoginScreenState extends State<LoginScreen> {
   void login() async {
     if (!_formKey.currentState!.validate()) return;
 
+
     setState(() {
       isLoading = true;
     });
+
 
     final res = await UserService.login(
       email: _emailController.text,
       password: _passwordController.text,
     );
 
+
     if (res["data"] != null) {
+      final token = res["data"]["token"];
+      final userId = res["data"]["user"]["id"];
+
+      await PreferenceHandler.saveToken(token);
+      await PreferenceHandler.saveUserId(userId);
+
       final token = res["data"]["token"];
       final userId = res["data"]["user"]["id"];
 
@@ -57,9 +66,12 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Login berhasil!"),
+        const SnackBar(
+          content: Text("Login berhasil!"),
           backgroundColor: Colors.green,
         ),
       );
+
 
       Navigator.pushAndRemoveUntil(
         context,
@@ -74,6 +86,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     }
+
 
     setState(() {
       isLoading = false;
@@ -155,6 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 30),
               ElevatedButton(
+                onPressed: login,
                 onPressed: login,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.black,
